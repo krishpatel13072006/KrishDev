@@ -1,0 +1,95 @@
+.lens-container-wrapper {
+  /* Break out of inner container constraints to reach full window width */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  height: 70vh;
+  position: relative;
+  background: #0a0a0a;
+  overflow: hidden;
+  margin-bottom: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  /* The ring has interactions sometimes, but cursor should generally be hidden over this area */
+  cursor: crosshair;
+}
+
+.lens-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.lens-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lens-layer-mask {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+  /* Mask image will be updated via JS */
+  -webkit-mask-image: radial-gradient(circle 135px at 50% 50%, black 100%, transparent 100%);
+  mask-image: radial-gradient(circle 135px at 50% 50%, black 100%, transparent 100%);
+}
+
+.lens-bg-image {
+  position: absolute;
+  inset: 0;
+  /* A bright, colorful creative background so the black text is highly visible */
+  background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  /* Reduced the darkening to make the image vivid and text legible */
+  filter: contrast(1.1) brightness(0.9);
+}
+
+.lens-layer h1,
+.lens-layer-mask h1 {
+  font-size: clamp(40px, 8vw, 150px);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  font-family: 'Arial Black', Impact, sans-serif;
+  line-height: 1;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.lens-ring {
+  position: absolute;
+  left: 0; top: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.lens-ring-inner {
+  width: 100%; height: 100%;
+  animation: lens-spin 12s linear infinite;
+  opacity: 0.92;
+}
+
+@keyframes lens-spin {
+  to { transform: rotate(360deg); }
+}
+
+.lens-dot {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0.5;
+}

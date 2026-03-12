@@ -5,6 +5,8 @@ import {
   AnimatePresence,
 } from 'framer-motion'
 import { projects } from '../data/projects'
+import TextScramble from '../components/TextScramble'
+import useScrollReveal from '../hooks/useScrollReveal'
 
 // ── Markdown-like README renderer (no library needed) ─────────
 function ReadmeRenderer({ content }) {
@@ -73,6 +75,7 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState('preview')
   const [iframeError, setIframeError] = useState(false)
   const [isPreloading, setIsPreloading] = useState(true)
+  useScrollReveal()
 
   // Trigger quick preload animation
   useEffect(() => {
@@ -169,7 +172,7 @@ export default function ProjectDetailPage() {
                 transition={{ delay: 0.25, duration: 0.6 }}
               >
                 <p className="detail-category">{project.category}</p>
-                <h1 className="detail-title">{project.title}</h1>
+                <h1 className="detail-title"><TextScramble text={project.title} /></h1>
                 <div className="detail-meta">
                   <span className="badge">
                     <span style={{ display:'inline-block', width:8, height:8, borderRadius:'50%', background:'#28c840' }} />
@@ -186,7 +189,7 @@ export default function ProjectDetailPage() {
           </motion.div>
 
           {/* ── Body ── */}
-          <div className="detail-body">
+          <div className="detail-body reveal">
             {/* Main column */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}

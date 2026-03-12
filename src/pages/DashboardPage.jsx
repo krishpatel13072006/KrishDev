@@ -1,15 +1,36 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import TextScramble from '../components/TextScramble'
+import useScrollReveal from '../hooks/useScrollReveal'
 
 const GITHUB_USERNAME = 'krishpatel13072006'
+const LEETCODE_USERNAME = 'krish_patel13072006'
 
 const LEETCODE_FALLBACK = {
-  totalSolved: 15,
-  easySolved: 10,
-  mediumSolved: 4,
-  hardSolved: 1,
+  totalSolved: 0,
+  easySolved: 0,
+  mediumSolved: 0,
+  hardSolved: 0,
   ranking: 0,
-  contestRating: 0,
+  reputation: 0,
+}
+
+async function fetchLeetCodeStats() {
+  const apis = [
+    `https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_USERNAME}`,
+    `https://alfa-leetcode-api.onrender.com/userProfile/${LEETCODE_USERNAME}`,
+    `https://leetcode-stats-api.herokuapp.com/${LEETCODE_USERNAME}`,
+  ];
+  for (const url of apis) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (r.ok) {
+        const d = await r.json();
+        if (d && (d.totalSolved !== undefined || d.total_solved !== undefined)) return d;
+      }
+    } catch {}
+  }
+  return null;
 }
 
 function StatCard({ value, label, icon, color, delay = 0 }) {
@@ -54,7 +75,6 @@ function LanguageBar({ lang, pct, color }) {
   )
 }
 
-// Map languages to colors for consistency
 const LANG_COLORS = {
   JavaScript: '#f0db4f',
   Java: '#b07219',
@@ -67,76 +87,79 @@ const LANG_COLORS = {
 
 export default function DashboardPage() {
   const [lcData, setLcData] = useState(LEETCODE_FALLBACK)
+  const [githubStats, setGithubStats] = useState({ followers: 0, public_repos: 0, stars: 0 })
   const [languages, setLanguages] = useState([])
   const [loading, setLoading] = useState(true)
+  useScrollReveal()
 
   useEffect(() => {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 6000)
+    let isMounted = true;
 
-    Promise.all([
-      // Fetch LeetCode Real Stats (using a faster vercel proxy)
-      fetch(`https://leetcode-api-faisalshohag.vercel.app/${GITHUB_USERNAME}`, { signal: controller.signal })
-        .then(res => res.json())
-        .catch(() => null),
-      // Fetch GitHub Repos for Language Distribution
-      fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100`, { signal: controller.signal })
-        .then(res => res.json())
-        .catch(() => [])
-    ]).then(([lcStats, repos]) => {
-      clearTimeout(timeoutId)
-      
-      if (lcStats && !lcStats.errors && lcStats.totalSolved !== undefined) {
-        setLcData({
-          totalSolved: lcStats.totalSolved || 0,
-          easySolved: lcStats.easySolved || 0,
-          mediumSolved: lcStats.mediumSolved || 0,
-          hardSolved: lcStats.hardSolved || 0,
-          ranking: lcStats.ranking || 0,
-          contestRating: lcStats.reputation || 0,
-        })
-      }
+    async function loadData() {
+      try {
+        const [lcStats, gitUser, repos] = await Promise.all([
+          fetchLeetCodeStats(),
+          fetch(`https://api.github.com/users/${GITHUB_USERNAME}`).then(res => res.json()),
+          fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100`).then(res => res.json())
+        ]);
 
-      if (Array.isArray(repos) && repos.length > 0 && !repos.message) {
-        const langCounts = {}
-        let totalLangs = 0
-        repos.forEach(repo => {
-          if (repo.language) {
-            langCounts[repo.language] = (langCounts[repo.language] || 0) + 1
-            totalLangs++
-          }
-        })
-        
-        const sortedLangs = Object.entries(langCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([lang, count]) => ({
-            lang,
-            pct: Math.round((count / totalLangs) * 100),
-            color: LANG_COLORS[lang] || '#8b5cf6'
-          }))
-        
-        setLanguages(sortedLangs.length > 0 ? sortedLangs : [
-          { lang: 'JavaScript', pct: 40, color: '#f0db4f' },
-          { lang: 'Java', pct: 30, color: '#b07219' },
-          { lang: 'HTML/CSS', pct: 30, color: '#e34c26' }
-        ])
-      } else {
-        // Fallback if GitHub API fails/rate limited
-        setLanguages([
-          { lang: 'Java', pct: 45, color: '#b07219' },
-          { lang: 'JavaScript', pct: 35, color: '#f0db4f' },
-          { lang: 'Python', pct: 20, color: '#3572A5' }
-        ])
+        if (!isMounted) return;
+
+        // Sync LeetCode
+        if (lcStats) {
+          setLcData({
+            totalSolved: lcStats.totalSolved || lcStats.total_solved || 0,
+            easySolved: lcStats.easySolved || lcStats.easy_solved || 0,
+            mediumSolved: lcStats.mediumSolved || lcStats.medium_solved || 0,
+            hardSolved: lcStats.hardSolved || lcStats.hard_solved || 0,
+            ranking: lcStats.ranking || 0,
+            reputation: lcStats.reputation || lcStats.contributionPoints || 0,
+          });
+        }
+
+        // Sync GitHub Profile
+        if (gitUser && !gitUser.message) {
+          const totalStars = Array.isArray(repos) ? repos.reduce((s, r) => s + (r.stargazers_count || 0), 0) : 0;
+          setGithubStats({
+            followers: gitUser.followers || 0,
+            public_repos: gitUser.public_repos || 0,
+            stars: totalStars
+          });
+        }
+
+        // Language Distribution
+        if (Array.isArray(repos) && repos.length > 0) {
+          const langCounts = {}
+          let totalLangs = 0
+          repos.forEach(repo => {
+            if (repo.language) {
+              langCounts[repo.language] = (langCounts[repo.language] || 0) + 1
+              totalLangs++
+            }
+          })
+          
+          const sortedLangs = Object.entries(langCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([lang, count]) => ({
+              lang,
+              pct: Math.round((count / totalLangs) * 100),
+              color: LANG_COLORS[lang] || '#8b5cf6'
+            }))
+          
+          setLanguages(sortedLangs);
+        }
+      } catch (err) {
+        console.error("Dashboard Load Error:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false)
-    }).catch(() => {
-      setLanguages([{ lang: 'Java', pct: 45, color: '#b07219' }, { lang: 'JavaScript', pct: 35, color: '#f0db4f' }, { lang: 'Python', pct: 20, color: '#3572A5' }])
-      setLoading(false)
-    })
-    
-    return () => { clearTimeout(timeoutId); controller.abort() }
+    }
+
+    loadData();
+    return () => { isMounted = false; };
   }, [])
+
 
   const pageVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -150,6 +173,19 @@ export default function DashboardPage() {
   const medDash = (lcData.mediumSolved / total) * 301.6;
   const hardDash = (lcData.hardSolved / total) * 301.6;
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: '1.5rem', color: 'var(--text-secondary)' }}>
+        <motion.div
+          style={{ width: 50, height: 50, borderRadius: '50%', border: '3px solid var(--border)', borderTopColor: 'var(--accent)' }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+        />
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', letterSpacing: '0.05em' }}>SYNCING ANALYTICS...</p>
+      </div>
+    )
+  }
+
   return (
     <motion.div
       className="dashboard-page"
@@ -159,7 +195,7 @@ export default function DashboardPage() {
       exit="exit"
     >
       {/* Hero */}
-      <section className="dashboard-hero">
+      <section className="dashboard-hero reveal">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -170,7 +206,7 @@ export default function DashboardPage() {
             <span>Developer Pulse</span>
           </div>
           <h1 className="section-title" style={{ marginBottom: '0.75rem' }}>
-            My Coding <span className="gradient-text">Dashboard</span>
+            My Coding <span className="gradient-text"><TextScramble text="Dashboard" /></span>
           </h1>
           <p className="section-subtitle" style={{ margin: '0 auto' }}>
             Live stats aggregated from GitHub, LeetCode &amp; more — all in one place.
@@ -179,27 +215,27 @@ export default function DashboardPage() {
       </section>
 
       {/* Top Stats */}
-      <section className="dashboard-stats">
-        <StatCard value={lcData.totalSolved} label="Problems Solved" icon="🧩" color="#7c3aed" delay={0.1} />
-        <StatCard value={lcData.easySolved} label="Easy" icon="🟢" color="#10b981" delay={0.15} />
-        <StatCard value={lcData.mediumSolved} label="Medium" icon="🟡" color="#f59e0b" delay={0.2} />
-        <StatCard value={lcData.hardSolved} label="Hard" icon="🔴" color="#ef4444" delay={0.25} />
+      <section className="dashboard-stats reveal">
+        <StatCard value={lcData.totalSolved} label="Solved" icon="🧩" color="#7c3aed" delay={0.1} />
+        <StatCard value={githubStats.stars} label="GitHub Stars" icon="⭐" color="#f59e0b" delay={0.15} />
+        <StatCard value={githubStats.followers} label="Followers" icon="👥" color="#10b981" delay={0.2} />
+        <StatCard value={githubStats.public_repos} label="Repositories" icon="📁" color="#3b82f6" delay={0.25} />
         <StatCard value={lcData.ranking ? '#' + lcData.ranking.toLocaleString() : 'N/A'} label="Global Rank" icon="🏆" color="#06b6d4" delay={0.3} />
-        <StatCard value={lcData.contestRating} label="Reputation" icon="✨" color="#ec4899" delay={0.35} />
+        <StatCard value={lcData.reputation} label="Reputation" icon="✨" color="#ec4899" delay={0.35} />
       </section>
 
       <div className="dashboard-grid">
         {/* LeetCode Progress */}
         <motion.div
-          className="dash-panel"
+          className="dash-panel reveal"
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="dash-panel-header">
-            <h3>🧠 LeetCode Progress</h3>
+            <h3>🧠 <TextScramble text="LeetCode Progress" /></h3>
             <a
-              href={`https://leetcode.com/${GITHUB_USERNAME}`}
+              href={`https://leetcode.com/${LEETCODE_USERNAME}`}
               target="_blank"
               rel="noopener noreferrer"
               className="dash-link"
@@ -257,7 +293,7 @@ export default function DashboardPage() {
           transition={{ duration: 0.6, delay: 0.35 }}
         >
           <div className="dash-panel-header">
-            <h3>💻 GitHub Language Distribution</h3>
+            <h3>💻 <TextScramble text="GitHub Language Distribution" /></h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {loading ? (
@@ -280,7 +316,7 @@ export default function DashboardPage() {
         transition={{ duration: 0.6, delay: 0.45 }}
       >
         <div className="dash-panel-header">
-          <h3>🟩 Contribution Activity</h3>
+          <h3>🟩 <TextScramble text="Contribution Activity" /></h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Real-time data from GitHub</span>
         </div>
         

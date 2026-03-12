@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import TextScramble from '../components/TextScramble'
+import useScrollReveal from '../hooks/useScrollReveal'
 
 const GITHUB_USER = 'krishpatel13072006'
 
@@ -7,6 +9,7 @@ export default function GitHubPage() {
   const [profile, setProfile] = useState(null)
   const [repos, setRepos] = useState([])
   const [loading, setLoading] = useState(true)
+  useScrollReveal()
 
   useEffect(() => {
     Promise.all([
@@ -54,7 +57,7 @@ export default function GitHubPage() {
       {/* ── Profile Header ── */}
       {profile && (
         <motion.div
-          className="github-profile-header"
+          className="github-profile-header reveal"
           style={{
             display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap',
             background: 'var(--bg-glass)', border: '1px solid var(--border)',
@@ -76,7 +79,7 @@ export default function GitHubPage() {
           <div style={{ flex: 1, minWidth: 200 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
               <h1 style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
-                {profile.name || profile.login}
+                <TextScramble text={profile.name || profile.login} />
               </h1>
               <span style={{
                 background: 'var(--accent-glow)', border: '1px solid var(--border-hover)',
@@ -143,6 +146,7 @@ export default function GitHubPage() {
           backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
           boxShadow: 'var(--shadow)'
         }}
+        className="reveal"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -168,6 +172,7 @@ export default function GitHubPage() {
 
       <motion.div
         style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}
+        className="reveal"
         variants={containerVariants}
         initial="hidden"
         animate="show"

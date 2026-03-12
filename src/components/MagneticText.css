@@ -1,0 +1,31 @@
+.mag-wrap {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mag-char {
+  display: inline-block;
+  font-weight: 900;
+  text-transform: uppercase;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), color 0.3s;
+  will-change: transform;
+  color: inherit;
+}
+
+/* Gradient support for individual characters */
+.mag-gradient .mag-char {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 50%, var(--accent-3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent !important;
+}
+
+/* Light theme override */
+[data-theme="light"] .mag-gradient .mag-char {
+  background: none;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+  color: #000 !important;
+}

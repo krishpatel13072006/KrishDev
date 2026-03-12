@@ -1,0 +1,11 @@
+.scramble-text {
+  cursor: default;
+  user-select: none;
+  transition: color 0.1s;
+  display: inline-block;
+}
+
+.scramble-text.active {
+  color: #00ffcc;
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
+}

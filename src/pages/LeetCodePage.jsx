@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import TextScramble from "../components/TextScramble";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 const USERNAME = "krish_patel13072006";
 
@@ -187,6 +189,7 @@ function BentoStat({ title, value, icon, gradient, delay }) {
 export default function LeetCodePage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  useScrollReveal();
 
   useEffect(() => {
     fetchStats().then(d => {
@@ -208,8 +211,20 @@ export default function LeetCodePage() {
   const ranking = s.ranking ?? "—";
   let acceptRate = s.acceptanceRate ?? s.acceptance_rate ?? "—";
   if (typeof acceptRate === "number") acceptRate = `${acceptRate.toFixed(1)}%`;
-  const recentSubs = s.recentSubmissions ?? MOCK.recentSubmissions;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: '1.5rem', color: 'var(--text-secondary)', backgroundColor: '#000' }}>
+        <motion.div
+          style={{ width: 50, height: 50, borderRadius: '50%', border: '3px solid #333', borderTopColor: '#8b5cf6' }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+        />
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', letterSpacing: '0.05em' }}>DECODING LEETCODE DATA...</p>
+      </div>
+    )
+  }
 
+  const recentSubs = s.recentSubmissions ?? MOCK.recentSubmissions;
   const containerVars = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } };
 
   return (
@@ -273,13 +288,13 @@ export default function LeetCodePage() {
       <div style={{ maxWidth: 1140, margin: "0 auto", padding: "clamp(40px, 8vw, 80px) clamp(20px, 4vw, 32px)", position: "relative", zIndex: 1 }}>
 
         {/* ── HEADER ── */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} style={{ textAlign: "center", marginBottom: "clamp(40px, 8vw, 60px)" }}>
+        <motion.div className="reveal" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} style={{ textAlign: "center", marginBottom: "clamp(40px, 8vw, 60px)" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 20px", borderRadius: 999, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
             <StatusDot color="#10b981" />
             <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", color: "#a1a1aa", textTransform: "uppercase" }}>Live Stats Sync</span>
           </div>
           <h1 style={{ fontSize: "clamp(3rem, 7vw, 5rem)", fontWeight: 900, letterSpacing: "-0.05em", lineHeight: 1.1, marginBottom: 16 }}>
-            Code is <span style={{ background: "linear-gradient(135deg, #a78bfa 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Art</span>.
+            Code is <span style={{ background: "linear-gradient(135deg, #a78bfa 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}><TextScramble text="Art" /></span>.
           </h1>
           <p style={{ color: "#a1a1aa", fontSize: "clamp(1rem, 2vw, 1.2rem)", maxWidth: 500, margin: "0 auto", lineHeight: 1.6 }}>
             Tracking algorithm mastery and competitive programming progress on LeetCode for <strong style={{ color: "#fff" }}>@{USERNAME}</strong>.
@@ -298,7 +313,7 @@ export default function LeetCodePage() {
           <motion.div variants={containerVars} initial="hidden" animate="show" style={{ display: "flex", flexDirection: "column", gap: "clamp(16px, 3vw, 24px)" }}>
             
             {/* ── TOP SECTION: Bento Grid ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "clamp(16px, 3vw, 24px)" }}>
+            <div className="reveal" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "clamp(16px, 3vw, 24px)" }}>
               
               {/* Profile & Main Arc */}
               <GlassCard delay={0.1} style={{ gridColumn: "1 / -1", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "clamp(24px, 5vw, 40px)" }}>
@@ -344,7 +359,7 @@ export default function LeetCodePage() {
             </div>
 
             {/* ── MIDDLE SECTION: Heatmap & Recent ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "clamp(16px, 3vw, 24px)" }}>
+            <div className="reveal" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "clamp(16px, 3vw, 24px)" }}>
               
               {/* Heatmap Card */}
               <GlassCard delay={0.4} noPadding className="flex flex-col">

@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import TextScramble from '../components/TextScramble'
+import useScrollReveal from '../hooks/useScrollReveal'
 
 const SOCIAL_LINKS = [
   {
@@ -198,6 +200,7 @@ export default function ContactPage() {
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle')
   const cardRef = useRef(null)
+  useScrollReveal()
 
   const set = (field) => (val) => {
     setForm(f => ({ ...f, [field]: val }))
@@ -252,13 +255,13 @@ export default function ContactPage() {
       initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
       {/* Header */}
-      <motion.div style={{ textAlign: 'center', marginBottom: '3.5rem' }}
+      <motion.div className="reveal" style={{ textAlign: 'center', marginBottom: '3.5rem' }}
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <div className="hero-eyebrow" style={{ display: 'inline-flex', marginBottom: '1rem' }}>
           <span>✉️</span><span>Let's Connect</span>
         </div>
         <h1 style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: '0.75rem' }}>
-          Get in <span className="gradient-text">Touch</span>
+          Get in <span className="gradient-text"><TextScramble text="Touch" /></span>
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
           Have a project in mind, want to collaborate, or just say hi? I'd love to hear from you.
@@ -269,6 +272,7 @@ export default function ContactPage() {
 
         {/* ── Contact Form with Glassmorphism ── */}
         <motion.div
+          className="reveal"
           ref={cardRef}
           style={{
             background: 'var(--bg-glass)', border: '1px solid var(--border)',
@@ -392,7 +396,7 @@ export default function ContactPage() {
         </motion.div>
 
         {/* ── Sidebar ── */}
-        <motion.aside style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+        <motion.aside className="reveal" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
           initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
 
           {/* Availability */}

@@ -8,6 +8,9 @@ import {
 } from 'framer-motion'
 import { projects, categories } from '../data/projects'
 import ThreeScene from '../components/ThreeScene'
+import LensAnimation from '../components/LensAnimation'
+import TextScramble from '../components/TextScramble'
+import useScrollReveal from '../hooks/useScrollReveal'
 
 // ── Framer Motion Variants ──────────────────────────────────
 const containerVariants = {
@@ -59,7 +62,7 @@ const ProjectCard = forwardRef(({ project, index }, ref) => {
       variants={cardVariants}
       layout
       layoutId={`card-${project.id}`}
-      className="project-card"
+      className="project-card reveal"
       onClick={() => navigate(`/project/${project.id}`)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -136,6 +139,7 @@ const ProjectCard = forwardRef(({ project, index }, ref) => {
 // ── HomePage ─────────────────────────────────────────────────
 export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState('All')
+  useScrollReveal()
 
   const filtered = activeCategory === 'All'
     ? projects
@@ -149,7 +153,7 @@ export default function HomePage() {
   return (
     <>
       {/* ── HERO ── */}
-      <section className="hero hero-split">
+      <section className="hero hero-split reveal">
         <div className="hero-left">
           <motion.div variants={heroVariants} initial="hidden" animate="show">
             <div className="hero-eyebrow">
@@ -165,7 +169,7 @@ export default function HomePage() {
             transition={{ duration: 0.75, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
           >
             Things I've{' '}
-            <span className="gradient-text">Shipped</span>
+            <span className="gradient-text"><TextScramble text="Shipped" /></span>
             <br />to the World
           </motion.h1>
 
@@ -210,7 +214,7 @@ export default function HomePage() {
 
         {/* 3D Scene */}
         <motion.div
-          className="hero-right"
+          className="hero-right reveal"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.3 }}
@@ -221,7 +225,7 @@ export default function HomePage() {
 
       {/* ── TICKER ── */}
       <motion.div
-        className="ticker-wrap"
+        className="ticker-wrap reveal"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
@@ -235,9 +239,19 @@ export default function HomePage() {
         </div>
       </motion.div>
 
+      {/* ── LENS ANIMATION (KRISH DEVELOPER) ── */}
+      <motion.div
+        className="reveal"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
+        <LensAnimation />
+      </motion.div>
+
       {/* ── FILTER BAR ── */}
       <motion.div
-        className="filter-bar"
+        className="filter-bar reveal"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.55 }}
@@ -256,7 +270,7 @@ export default function HomePage() {
 
       {/* ── PROJECTS GRID ── */}
       <motion.div
-        className="projects-grid"
+        className="projects-grid reveal"
         variants={containerVariants}
         initial="hidden"
         animate="show"
