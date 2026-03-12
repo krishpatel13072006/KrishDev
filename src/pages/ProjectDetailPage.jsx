@@ -77,7 +77,7 @@ export default function ProjectDetailPage() {
   // Trigger quick preload animation
   useEffect(() => {
     setIsPreloading(true)
-    const timer = setTimeout(() => setIsPreloading(false), 800)
+    const timer = setTimeout(() => setIsPreloading(false), 1500)
     return () => clearTimeout(timer)
   }, [id])
 
@@ -97,71 +97,69 @@ export default function ProjectDetailPage() {
   ]
 
   return (
-    <>
-      <AnimatePresence>
-        {isPreloading && (
+    <AnimatePresence mode="wait">
+      {isPreloading ? (
+        <motion.div
+          key="project-loader"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, filter: 'blur(10px)', scale: 1.05 }}
+          transition={{ duration: 0.4 }}
+          style={{
+            position: 'absolute', inset: 0, zIndex: 100,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--bg-default)', minHeight: '80vh', gap: '1.5rem',
+            fontFamily: 'var(--font-mono)'
+          }}
+        >
           <motion.div
-            key="project-loader"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, filter: 'blur(10px)', scale: 1.05 }}
-            transition={{ duration: 0.4 }}
             style={{
-              position: 'fixed', inset: 0, zIndex: 9999,
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              background: 'var(--bg-default)', gap: '1.5rem',
-              fontFamily: 'var(--font-mono)'
+              width: 60, height: 60, border: `3px solid ${project.color}`,
+              borderTopColor: 'transparent', borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           >
-            <motion.div
-              style={{
-                width: 60, height: 60, border: `3px solid ${project.color}`,
-                borderTopColor: 'transparent', borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            >
-              <div style={{ width: 12, height: 12, borderRadius: '50%', background: project.color, boxShadow: `0 0 15px ${project.color}` }} />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>DECRYPTING DATA</span>
-              <span style={{ fontSize: '1.4rem', fontWeight: 700, color: project.color, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{project.title}</span>
-            </motion.div>
+            <div style={{ width: 12, height: 12, borderRadius: '50%', background: project.color, boxShadow: `0 0 15px ${project.color}` }} />
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div
-        key="project-content"
-        className="detail-page"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      >
-        {/* ── Back Button ── */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-          style={{ position: 'absolute', top: '80px', left: '2rem', zIndex: 20 }}
-        >
-          <Link to="/" className="back-btn" style={{ position: 'relative', top: 'auto', left: 'auto', margin: 0 }}>
-            ← Back
-          </Link>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>DECRYPTING DATA</span>
+            <span style={{ fontSize: '1.4rem', fontWeight: 700, color: project.color, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{project.title}</span>
+          </motion.div>
         </motion.div>
-
-        {/* ── Hero Banner ── */}
+      ) : (
         <motion.div
-          className="detail-hero"
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          key="project-content"
+          className="detail-page"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         >
+          {/* ── Back Button ── */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            style={{ position: 'absolute', top: '80px', left: '2rem', zIndex: 20 }}
+          >
+            <Link to="/" className="back-btn" style={{ position: 'relative', top: 'auto', left: 'auto', margin: 0 }}>
+              ← Back
+            </Link>
+          </motion.div>
+
+          {/* ── Hero Banner ── */}
+          <motion.div
+            className="detail-hero"
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+          >
             <img src={project.image} alt={project.title} className="detail-hero-img" />
             <div className="detail-hero-overlay">
               <motion.div
@@ -435,6 +433,7 @@ export default function ProjectDetailPage() {
             </motion.aside>
           </div>
         </motion.div>
-    </>
+      )}
+    </AnimatePresence>
   )
 }
