@@ -7,6 +7,9 @@ import ProjectDetailPage from './pages/ProjectDetailPage'
 import GitHubPage from './pages/GitHubPage'
 import ContactPage from './pages/ContactPage'
 import LeetCodePage from './pages/LeetCodePage'
+import DashboardPage from './pages/DashboardPage'
+import GuestbookPage from './pages/GuestbookPage'
+import ResumePage from './pages/ResumePage'
 import Preloader from './components/Preloader'
 import { useState } from 'react'
 
@@ -43,6 +46,9 @@ export default function App() {
             <Route path="/github" element={<GitHubPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/leetcode" element={<LeetCodePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/guestbook" element={<GuestbookPage />} />
+            <Route path="/resume" element={<ResumePage />} />
           </Routes>
         </AnimatePresence>
       </div>

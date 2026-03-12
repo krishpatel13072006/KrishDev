@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   motion,
@@ -72,6 +72,14 @@ export default function ProjectDetailPage() {
   const project = projects.find(p => p.id === id)
   const [activeTab, setActiveTab] = useState('preview')
   const [iframeError, setIframeError] = useState(false)
+  const [isPreloading, setIsPreloading] = useState(true)
+
+  // Trigger quick preload animation
+  useEffect(() => {
+    setIsPreloading(true)
+    const timer = setTimeout(() => setIsPreloading(false), 800)
+    return () => clearTimeout(timer)
+  }, [id])
 
   if (!project) {
     return (
@@ -89,304 +97,344 @@ export default function ProjectDetailPage() {
   ]
 
   return (
-    <motion.div
-      className="detail-page"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      {/* ── Back Button ── */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2 }}
-        style={{ position: 'absolute', top: '80px', left: '2rem', zIndex: 20 }}
-      >
-        <Link to="/" className="back-btn" style={{ position: 'relative', top: 'auto', left: 'auto', margin: 0 }}>
-          ← Back
-        </Link>
-      </motion.div>
-
-      {/* ── Hero Banner ── */}
-      <motion.div
-        className="detail-hero"
-        initial={{ opacity: 0, scale: 1.04 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-      >
-        <img src={project.image} alt={project.title} className="detail-hero-img" />
-        <div className="detail-hero-overlay">
+    <>
+      <AnimatePresence>
+        {isPreloading && (
           <motion.div
-            className="detail-hero-content"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.6 }}
-          >
-            <p className="detail-category">{project.category}</p>
-            <h1 className="detail-title">{project.title}</h1>
-            <div className="detail-meta">
-              <span className="badge">
-                <span style={{ display:'inline-block', width:8, height:8, borderRadius:'50%', background:'#28c840' }} />
-                Live Deployed
-              </span>
-              <span className="badge">⭐ {project.stars} stars</span>
-              <span className="badge">🍴 {project.forks} forks</span>
-              <span className="badge" style={{ background: `${project.color}18`, borderColor: `${project.color}40`, color: project.color }}>
-                {project.tech[0]}
-              </span>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* ── Body ── */}
-      <div className="detail-body">
-        {/* Main column */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
-          {/* Description card */}
-          <motion.p
+            key="project-loader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, filter: 'blur(10px)', scale: 1.05 }}
+            transition={{ duration: 0.4 }}
             style={{
-              color: 'var(--text-secondary)',
-              lineHeight: 1.75,
-              marginBottom: '1.75rem',
-              padding: '1.25rem 1.5rem',
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              borderLeft: `4px solid ${project.color}`,
+              position: 'fixed', inset: 0, zIndex: 9999,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--bg-default)', gap: '1.5rem',
+              fontFamily: 'var(--font-mono)'
             }}
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
           >
-            {project.description}
-          </motion.p>
+            <motion.div
+              style={{
+                width: 60, height: 60, border: `3px solid ${project.color}`,
+                borderTopColor: 'transparent', borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            >
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: project.color, boxShadow: `0 0 15px ${project.color}` }} />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>DECRYPTING DATA</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 700, color: project.color, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{project.title}</span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Tabs */}
-          <div className="tabs">
-            {tabs.map(tab => (
-              <motion.button
-                key={tab.id}
-                className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-                whileTap={{ scale: 0.96 }}
-              >
-                {tab.label}
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          <AnimatePresence mode="wait">
-            {activeTab === 'preview' && (
-              <motion.div key="preview" variants={tabVariants} initial="initial" animate="animate" exit="exit">
-                <div className="preview-container">
-                  <div className="preview-bar">
-                    <span className="preview-dot" />
-                    <span className="preview-dot" />
-                    <span className="preview-dot" />
-                    <span className="preview-url">{project.liveUrl}</span>
-                    <motion.a
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '0.35rem',
-                        color: 'var(--accent)', fontSize: '0.78rem', textDecoration: 'none',
-                        padding: '0.3rem 0.75rem', borderRadius: '8px',
-                        background: 'hsl(258 89% 66% / 10%)',
-                        border: '1px solid hsl(258 89% 66% / 25%)',
-                        whiteSpace: 'nowrap'
-                      }}
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      <ExternalIcon /> Open
-                    </motion.a>
-                  </div>
-                  {iframeError ? (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      style={{
-                        height: 520, display: 'flex', flexDirection: 'column',
-                        alignItems: 'center', justifyContent: 'center', gap: '1rem',
-                        color: 'var(--text-secondary)',
-                      }}
-                    >
-                      <div style={{ fontSize: '3rem' }}>🔒</div>
-                      <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                        Preview blocked by the site
-                      </p>
-                      <p style={{ fontSize: '0.875rem', maxWidth: 320, textAlign: 'center' }}>
-                        This site doesn't allow embedding in iframes. Open it in a new tab instead.
-                      </p>
-                      <motion.a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="action-btn action-btn-primary"
-                        style={{ width: 'auto', padding: '0.75rem 1.75rem', textDecoration: 'none' }}
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.97 }}
-                      >
-                        <ExternalIcon /> Open Live Site
-                      </motion.a>
-                    </motion.div>
-                  ) : (
-                    <iframe
-                      key={project.liveUrl}
-                      className="preview-iframe"
-                      src={project.liveUrl}
-                      title={`${project.title} live preview`}
-                      onError={() => setIframeError(true)}
-                      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    />
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'readme' && (
-              <motion.div key="readme" variants={tabVariants} initial="initial" animate="animate" exit="exit">
-                <ReadmeRenderer content={project.readme} />
-              </motion.div>
-            )}
-
-            {activeTab === 'tech' && (
-              <motion.div key="tech" variants={tabVariants} initial="initial" animate="animate" exit="exit">
-                <div className="readme-container">
-                  <h1>Tech Stack</h1>
-                  <p>Technologies used in this project:</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.5rem' }}>
-                    {project.tech.map((t, i) => (
-                      <motion.span
-                        key={t}
-                        className="tech-badge-lg"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.06 }}
-                        style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
-                      >
-                        {t}
-                      </motion.span>
-                    ))}
-                  </div>
-
-                  {/* Color accent bar */}
-                  <div style={{ marginTop: '2rem', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    Project Color Identity
-                  </div>
-                  <div style={{ height: 8, borderRadius: 8, background: `linear-gradient(90deg, ${project.color}, transparent)` }} />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+      <motion.div
+        key="project-content"
+        className="detail-page"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      >
+        {/* ── Back Button ── */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6 }}
+          style={{ position: 'absolute', top: '80px', left: '2rem', zIndex: 20 }}
+        >
+          <Link to="/" className="back-btn" style={{ position: 'relative', top: 'auto', left: 'auto', margin: 0 }}>
+            ← Back
+          </Link>
         </motion.div>
 
-        {/* ── Sidebar ── */}
-        <motion.aside
-          className="detail-sidebar"
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+        {/* ── Hero Banner ── */}
+        <motion.div
+          className="detail-hero"
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
-          {/* CTA */}
-          <div className="sidebar-card">
-            <p className="sidebar-card-title">Quick Actions</p>
-            <motion.a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="action-btn action-btn-primary"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <ExternalIcon /> View Live Site →
-            </motion.a>
-            <motion.a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="action-btn action-btn-secondary"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <GithubIcon /> Source Code
-            </motion.a>
-          </div>
-
-          {/* Stats */}
-          <div className="sidebar-card">
-            <p className="sidebar-card-title">GitHub Stats</p>
-            <div className="sidebar-stats">
-              {[
-                { val: project.stars, key: 'Stars' },
-                { val: project.forks, key: 'Forks' },
-                { val: project.tech.length, key: 'Technologies' },
-                { val: project.featured ? 'Yes' : 'No', key: 'Featured' },
-              ].map(({ val, key }) => (
-                <motion.div
-                  key={key}
-                  className="sidebar-stat"
-                  whileHover={{ borderColor: project.color, y: -2 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span className="sidebar-stat-val">{val}</span>
-                  <span className="sidebar-stat-key">{key}</span>
-                </motion.div>
-              ))}
+            <img src={project.image} alt={project.title} className="detail-hero-img" />
+            <div className="detail-hero-overlay">
+              <motion.div
+                className="detail-hero-content"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.6 }}
+              >
+                <p className="detail-category">{project.category}</p>
+                <h1 className="detail-title">{project.title}</h1>
+                <div className="detail-meta">
+                  <span className="badge">
+                    <span style={{ display:'inline-block', width:8, height:8, borderRadius:'50%', background:'#28c840' }} />
+                    Live Deployed
+                  </span>
+                  <span className="badge">⭐ {project.stars} stars</span>
+                  <span className="badge">🍴 {project.forks} forks</span>
+                  <span className="badge" style={{ background: `${project.color}18`, borderColor: `${project.color}40`, color: project.color }}>
+                    {project.tech[0]}
+                  </span>
+                </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Tech Stack */}
-          <div className="sidebar-card">
-            <p className="sidebar-card-title">Tech Stack</p>
-            <div className="tech-stack-grid">
-              {project.tech.map((t, i) => (
-                <motion.span
-                  key={t}
-                  className="tech-badge-lg"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + i * 0.05 }}
-                >
-                  {t}
-                </motion.span>
-              ))}
-            </div>
-          </div>
+          {/* ── Body ── */}
+          <div className="detail-body">
+            {/* Main column */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              {/* Description card */}
+              <motion.p
+                style={{
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.75,
+                  marginBottom: '1.75rem',
+                  padding: '1.25rem 1.5rem',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  borderLeft: `4px solid ${project.color}`,
+                }}
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                {project.description}
+              </motion.p>
 
-          {/* Related projects */}
-          <div className="sidebar-card">
-            <p className="sidebar-card-title">Other Projects</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {projects.filter(p => p.id !== project.id).slice(0, 3).map(p => (
+              {/* Tabs */}
+              <div className="tabs">
+                {tabs.map(tab => (
+                  <motion.button
+                    key={tab.id}
+                    className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                    onClick={() => setActiveTab(tab.id)}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    {tab.label}
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Tab Content */}
+              <AnimatePresence mode="wait">
+                {activeTab === 'preview' && (
+                  <motion.div key="preview" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+                    <div className="preview-container">
+                      <div className="preview-bar">
+                        <span className="preview-dot" />
+                        <span className="preview-dot" />
+                        <span className="preview-dot" />
+                        <span className="preview-url">{project.liveUrl}</span>
+                        <motion.a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '0.35rem',
+                            color: 'var(--accent)', fontSize: '0.78rem', textDecoration: 'none',
+                            padding: '0.3rem 0.75rem', borderRadius: '8px',
+                            background: 'hsl(258 89% 66% / 10%)',
+                            border: '1px solid hsl(258 89% 66% / 25%)',
+                            whiteSpace: 'nowrap'
+                          }}
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <ExternalIcon /> Open
+                        </motion.a>
+                      </div>
+                      {iframeError ? (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          style={{
+                            height: 520, display: 'flex', flexDirection: 'column',
+                            alignItems: 'center', justifyContent: 'center', gap: '1rem',
+                            color: 'var(--text-secondary)',
+                          }}
+                        >
+                          <div style={{ fontSize: '3rem' }}>🔒</div>
+                          <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            Preview blocked by the site
+                          </p>
+                          <p style={{ fontSize: '0.875rem', maxWidth: 320, textAlign: 'center' }}>
+                            This site doesn't allow embedding in iframes. Open it in a new tab instead.
+                          </p>
+                          <motion.a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="action-btn action-btn-primary"
+                            style={{ width: 'auto', padding: '0.75rem 1.75rem', textDecoration: 'none' }}
+                            whileHover={{ scale: 1.04 }}
+                            whileTap={{ scale: 0.97 }}
+                          >
+                            <ExternalIcon /> Open Live Site
+                          </motion.a>
+                        </motion.div>
+                      ) : (
+                        <iframe
+                          key={project.liveUrl}
+                          className="preview-iframe"
+                          src={project.liveUrl}
+                          title={`${project.title} live preview`}
+                          onError={() => setIframeError(true)}
+                          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                        />
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'readme' && (
+                  <motion.div key="readme" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+                    <ReadmeRenderer content={project.readme} />
+                  </motion.div>
+                )}
+
+                {activeTab === 'tech' && (
+                  <motion.div key="tech" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+                    <div className="readme-container">
+                      <h1>Tech Stack</h1>
+                      <p>Technologies used in this project:</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.5rem' }}>
+                        {project.tech.map((t, i) => (
+                          <motion.span
+                            key={t}
+                            className="tech-badge-lg"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.06 }}
+                            style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+                          >
+                            {t}
+                          </motion.span>
+                        ))}
+                      </div>
+
+                      {/* Color accent bar */}
+                      <div style={{ marginTop: '2rem', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Project Color Identity
+                      </div>
+                      <div style={{ height: 8, borderRadius: 8, background: `linear-gradient(90deg, ${project.color}, transparent)` }} />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* ── Sidebar ── */}
+            <motion.aside
+              className="detail-sidebar"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+            >
+              {/* CTA */}
+              <div className="sidebar-card">
+                <p className="sidebar-card-title">Quick Actions</p>
                 <motion.a
-                  key={p.id}
-                  href={`/project/${p.id}`}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    textDecoration: 'none', padding: '0.6rem 0.75rem',
-                    borderRadius: 10, border: '1px solid var(--border)',
-                    color: 'var(--text-secondary)', fontSize: '0.85rem',
-                    transition: 'all 0.2s',
-                  }}
-                  whileHover={{ borderColor: p.color, color: 'var(--text-primary)', x: 4 }}
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="action-btn action-btn-primary"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
-                  {p.title}
+                  <ExternalIcon /> View Live Site →
                 </motion.a>
-              ))}
-            </div>
+                <motion.a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="action-btn action-btn-secondary"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <GithubIcon /> Source Code
+                </motion.a>
+              </div>
+
+              {/* Stats */}
+              <div className="sidebar-card">
+                <p className="sidebar-card-title">GitHub Stats</p>
+                <div className="sidebar-stats">
+                  {[
+                    { val: project.stars, key: 'Stars' },
+                    { val: project.forks, key: 'Forks' },
+                    { val: project.tech.length, key: 'Technologies' },
+                    { val: project.featured ? 'Yes' : 'No', key: 'Featured' },
+                  ].map(({ val, key }) => (
+                    <motion.div
+                      key={key}
+                      className="sidebar-stat"
+                      whileHover={{ borderColor: project.color, y: -2 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <span className="sidebar-stat-val">{val}</span>
+                      <span className="sidebar-stat-key">{key}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tech Stack */}
+              <div className="sidebar-card">
+                <p className="sidebar-card-title">Tech Stack</p>
+                <div className="tech-stack-grid">
+                  {project.tech.map((t, i) => (
+                    <motion.span
+                      key={t}
+                      className="tech-badge-lg"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + i * 0.05 }}
+                    >
+                      {t}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Related projects */}
+              <div className="sidebar-card">
+                <p className="sidebar-card-title">Other Projects</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {projects.filter(p => p.id !== project.id).slice(0, 3).map(p => (
+                    <motion.a
+                      key={p.id}
+                      href={`/project/${p.id}`}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.75rem',
+                        textDecoration: 'none', padding: '0.6rem 0.75rem',
+                        borderRadius: 10, border: '1px solid var(--border)',
+                        color: 'var(--text-secondary)', fontSize: '0.85rem',
+                        transition: 'all 0.2s',
+                      }}
+                      whileHover={{ borderColor: p.color, color: 'var(--text-primary)', x: 4 }}
+                    >
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
+                      {p.title}
+                    </motion.a>
+                  ))}
+                </div>
+              </div>
+            </motion.aside>
           </div>
-        </motion.aside>
-      </div>
-    </motion.div>
+        </motion.div>
+    </>
   )
 }

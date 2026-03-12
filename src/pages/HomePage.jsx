@@ -7,6 +7,7 @@ import {
   useTransform,
 } from 'framer-motion'
 import { projects, categories } from '../data/projects'
+import ThreeScene from '../components/ThreeScene'
 
 // ── Framer Motion Variants ──────────────────────────────────
 const containerVariants = {
@@ -148,59 +149,73 @@ export default function HomePage() {
   return (
     <>
       {/* ── HERO ── */}
-      <section className="hero">
-        <motion.div variants={heroVariants} initial="hidden" animate="show">
-          <div className="hero-eyebrow">
-            <span>⚡</span>
-            <span>Live Portfolio · {new Date().getFullYear()}</span>
-          </div>
-        </motion.div>
-
-        <motion.h1
-          className="hero-title"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
-        >
-          Things I've{' '}
-          <span className="gradient-text">Shipped</span>
-          <br />to the World
-        </motion.h1>
-
-        <motion.p
-          className="hero-subtitle"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-        >
-          A curated collection of my deployed projects — click any card for a
-          live preview, source code, and full documentation.
-        </motion.p>
-
-        {/* Stats */}
-        <motion.div
-          className="hero-stats"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-        >
-          {[
-            { val: projects.length, label: 'Projects' },
-            { val: totalStars, label: 'GitHub Stars' },
-            { val: projects.filter(p => p.featured).length, label: 'Featured' },
-          ].map(({ val, label }) => (
-            <div className="stat" key={label}>
-              <motion.span
-                className="stat-number"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                {val}+
-              </motion.span>
-              <span className="stat-label">{label}</span>
+      <section className="hero hero-split">
+        <div className="hero-left">
+          <motion.div variants={heroVariants} initial="hidden" animate="show">
+            <div className="hero-eyebrow">
+              <span>⚡</span>
+              <span>Live Portfolio · {new Date().getFullYear()}</span>
             </div>
-          ))}
+          </motion.div>
+
+          <motion.h1
+            className="hero-title"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
+          >
+            Things I've{' '}
+            <span className="gradient-text">Shipped</span>
+            <br />to the World
+          </motion.h1>
+
+          <motion.p
+            className="hero-subtitle"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            style={{ margin: '0 0 2rem' }}
+          >
+            A curated collection of my deployed projects — click any card for a
+            live preview, source code, and full documentation.
+          </motion.p>
+
+          {/* Stats */}
+          <motion.div
+            className="hero-stats"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            style={{ justifyContent: 'flex-start' }}
+          >
+            {[
+              { val: projects.length, label: 'Projects' },
+              { val: totalStars, label: 'GitHub Stars' },
+              { val: projects.filter(p => p.featured).length, label: 'Featured' },
+            ].map(({ val, label }) => (
+              <div className="stat" key={label}>
+                <motion.span
+                  className="stat-number"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  {val}+
+                </motion.span>
+                <span className="stat-label">{label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* 3D Scene */}
+        <motion.div
+          className="hero-right"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
+          <ThreeScene />
         </motion.div>
       </section>
 

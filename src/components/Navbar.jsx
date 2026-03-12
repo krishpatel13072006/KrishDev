@@ -27,6 +27,9 @@ export default function Navbar() {
     { label: 'Projects', to: '/' },
     { label: 'GitHub', to: '/github' },
     { label: 'LeetCode', to: '/leetcode' },
+    { label: 'Dashboard', to: '/dashboard' },
+    { label: 'Guestbook', to: '/guestbook' },
+    { label: 'Resume', to: '/resume' },
     { label: 'Contact', to: '/contact' },
   ]
 
