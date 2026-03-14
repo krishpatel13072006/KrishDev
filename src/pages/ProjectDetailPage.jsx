@@ -7,6 +7,7 @@ import {
 import { projects } from '../data/projects'
 import TextScramble from '../components/TextScramble'
 import useScrollReveal from '../hooks/useScrollReveal'
+import LegacyPreloader from '../components/LegacyPreloader'
 
 // ── Markdown-like README renderer (no library needed) ─────────
 function ReadmeRenderer({ content }) {
@@ -77,11 +78,9 @@ export default function ProjectDetailPage() {
   const [isPreloading, setIsPreloading] = useState(true)
   useScrollReveal()
 
-  // Trigger quick preload animation
+  // Preload state managed by the LegacyPreloader component
   useEffect(() => {
     setIsPreloading(true)
-    const timer = setTimeout(() => setIsPreloading(false), 1500)
-    return () => clearTimeout(timer)
   }, [id])
 
   if (!project) {
@@ -103,37 +102,12 @@ export default function ProjectDetailPage() {
     <AnimatePresence mode="wait">
       {isPreloading ? (
         <motion.div
-          key="project-loader"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, filter: 'blur(10px)', scale: 1.05 }}
-          transition={{ duration: 0.4 }}
-          style={{
-            position: 'absolute', inset: 0, zIndex: 100,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'var(--bg-default)', minHeight: '80vh', gap: '1.5rem',
-            fontFamily: 'var(--font-mono)'
-          }}
+           key="project-loader"
+           initial={{ opacity: 1 }}
+           exit={{ opacity: 0 }}
+           transition={{ duration: 0.5 }}
         >
-          <motion.div
-            style={{
-              width: 60, height: 60, border: `3px solid ${project.color}`,
-              borderTopColor: 'transparent', borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          >
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: project.color, boxShadow: `0 0 15px ${project.color}` }} />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>DECRYPTING DATA</span>
-            <span style={{ fontSize: '1.4rem', fontWeight: 700, color: project.color, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{project.title}</span>
-          </motion.div>
+          <LegacyPreloader onComplete={() => setIsPreloading(false)} />
         </motion.div>
       ) : (
         <motion.div
@@ -197,23 +171,21 @@ export default function ProjectDetailPage() {
               transition={{ delay: 0.3, duration: 0.5 }}
             >
               {/* Description card */}
-              <motion.p
+              <motion.div
+                className="glassmorphic reveal"
                 style={{
-                  color: 'var(--text-secondary)',
                   lineHeight: 1.75,
                   marginBottom: '1.75rem',
                   padding: '1.25rem 1.5rem',
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius)',
                   borderLeft: `4px solid ${project.color}`,
+                  color: 'var(--text-secondary)',
                 }}
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
                 {project.description}
-              </motion.p>
+              </motion.div>
 
               {/* Tabs */}
               <div className="tabs">
@@ -345,7 +317,7 @@ export default function ProjectDetailPage() {
               transition={{ delay: 0.4, duration: 0.5 }}
             >
               {/* CTA */}
-              <div className="sidebar-card">
+              <div className="sidebar-card glassmorphic">
                 <p className="sidebar-card-title">Quick Actions</p>
                 <motion.a
                   href={project.liveUrl}
@@ -370,7 +342,7 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Stats */}
-              <div className="sidebar-card">
+              <div className="sidebar-card glassmorphic">
                 <p className="sidebar-card-title">GitHub Stats</p>
                 <div className="sidebar-stats">
                   {[
@@ -393,7 +365,7 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Tech Stack */}
-              <div className="sidebar-card">
+              <div className="sidebar-card glassmorphic">
                 <p className="sidebar-card-title">Tech Stack</p>
                 <div className="tech-stack-grid">
                   {project.tech.map((t, i) => (
@@ -411,7 +383,7 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Related projects */}
-              <div className="sidebar-card">
+              <div className="sidebar-card glassmorphic">
                 <p className="sidebar-card-title">Other Projects</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {projects.filter(p => p.id !== project.id).slice(0, 3).map(p => (

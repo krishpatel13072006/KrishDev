@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import TextScramble from '../components/TextScramble'
 import useScrollReveal from '../hooks/useScrollReveal'
+import ThreePreloader from '../components/ThreePreloader'
 
 const SOCIAL_LINKS = [
   {
@@ -196,6 +197,7 @@ function GlowInput({ id, label, type = 'text', value, onChange, error, required,
 }
 
 export default function ContactPage() {
+  const [isLoading, setIsLoading] = useState(true)
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' })
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle')
@@ -251,207 +253,219 @@ export default function ContactPage() {
   }
 
   return (
-    <motion.div style={{ maxWidth: 1100, margin: '0 auto', padding: '3rem 2rem 5rem' }}
-      initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-
-      {/* Header */}
-      <motion.div className="reveal" style={{ textAlign: 'center', marginBottom: '3.5rem' }}
-        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <div className="hero-eyebrow" style={{ display: 'inline-flex', marginBottom: '1rem' }}>
-          <span>✉️</span><span>Let's Connect</span>
-        </div>
-        <h1 style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: '0.75rem' }}>
-          Get in <span className="gradient-text"><TextScramble text="Touch" /></span>
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
-          Have a project in mind, want to collaborate, or just say hi? I'd love to hear from you.
-        </p>
-      </motion.div>
-
-      <div className="contact-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '2rem', alignItems: 'start' }}>
-
-        {/* ── Contact Form with Glassmorphism ── */}
-        <motion.div
-          className="reveal"
-          ref={cardRef}
-          style={{
-            background: 'var(--bg-glass)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-lg)', padding: '2.25rem',
-            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-            position: 'relative', overflow: 'visible',
-            boxShadow: 'var(--shadow)',
-          }}
-          initial={{ opacity: 0, x: -24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          whileHover={{ y: -4, borderColor: 'var(--border-hover)', boxShadow: '0 8px 40px hsl(0 0% 0% / 50%), var(--shadow-glow)' }}
-        >
-          {/* Shimmer top edge */}
-          <motion.div style={{
-            position: 'absolute', top: 0, left: '10%', right: '10%', height: 2, borderRadius: 2,
-            background: 'linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent)',
-          }}
-            animate={{ opacity: [0.4, 1, 0.4], scaleX: [0.7, 1, 0.7] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          />
-
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '1.75rem' }}>Send a Message</h2>
-
-          <AnimatePresence mode="wait">
-            {status === 'success' ? (
-              <motion.div key="success"
-                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                style={{ textAlign: 'center', padding: '3rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                <motion.div
-                  style={{ width: 80, height: 80, borderRadius: '50%', background: 'hsl(142 70% 45% / 15%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem', border: '2px solid hsl(142 70% 45% / 40%)' }}
-                  initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 280, damping: 18 }}>✓</motion.div>
-                {[...Array(8)].map((_, i) => (
-                  <motion.div key={i} style={{ position: 'absolute', width: 8, height: 8, borderRadius: '50%', background: i % 2 ? 'var(--accent)' : 'var(--accent-2)' }}
-                    initial={{ x: 0, y: 0, opacity: 1 }}
-                    animate={{ x: Math.cos(i / 8 * Math.PI * 2) * 80, y: Math.sin(i / 8 * Math.PI * 2) * 80, opacity: 0, scale: 0 }}
-                    transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 + i * 0.04 }} />
-                ))}
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Message sent! 🎉</h3>
-                <p style={{ color: 'var(--text-secondary)', maxWidth: 320 }}>Your message has been delivered straight to my inbox. I'll get back to you soon!</p>
-                <motion.button onClick={() => setStatus('idle')}
-                  className="action-btn action-btn-secondary" style={{ marginTop: '0.5rem', width: 'auto', padding: '0.65rem 1.5rem' }}
-                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>Send Another</motion.button>
-              </motion.div>
-            ) : (
-              <motion.form key="form" onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} noValidate>
-                <div className="contact-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
-                  <GlowInput id="name" label="Your Name" value={form.name} onChange={set('name')} error={errors.name} required />
-                  <GlowInput id="email" label="Email Address" type="email" value={form.email} onChange={set('email')} error={errors.email} required />
-                </div>
-
-                {/* Animated subject selector */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Subject</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {SUBJECTS.map((s, i) => (
-                      <motion.button key={s} type="button" onClick={() => set('subject')(s)}
-                        initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.05 * i }}
-                        whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }}
-                        style={{
-                          padding: '0.35rem 0.9rem', borderRadius: 999, border: `1.5px solid ${form.subject === s ? 'var(--accent)' : 'var(--border)'}`,
-                          background: form.subject === s ? 'var(--accent)' : 'transparent',
-                          color: form.subject === s ? '#fff' : 'var(--text-secondary)',
-                          fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
-                          boxShadow: form.subject === s ? '0 0 14px var(--accent-glow)' : 'none',
-                          transition: 'all 0.2s',
-                        }}>
-                        {s}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                <GlowInput id="message" label="Your Message" as="textarea" rows={5} value={form.message} onChange={set('message')} error={errors.message} required />
-
-                {/* Char counter */}
-                <div style={{ textAlign: 'right', fontSize: '0.72rem', color: form.message.length > 400 ? 'var(--accent-3)' : 'var(--text-muted)', marginTop: '-1rem', marginBottom: '1.2rem' }}>
-                  {form.message.length} chars
-                </div>
-
-                <motion.button type="submit" disabled={status === 'sending'}
-                  style={{
-                    width: '100%', padding: '1rem', border: 'none',
-                    background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
-                    color: '#fff', borderRadius: 12,
-                    fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 700,
-                    cursor: status === 'sending' ? 'not-allowed' : 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
-                    boxShadow: '0 0 24px var(--accent-glow)', position: 'relative', overflow: 'hidden',
-                  }}
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 40px var(--accent-glow)' }}
-                  whileTap={{ scale: 0.98 }}>
-                  {/* shimmer sweep */}
-                  <motion.div style={{
-                    position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%',
-                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                    pointerEvents: 'none',
-                  }}
-                    animate={{ left: ['−100%', '200%'] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 1 }} />
-                  {status === 'sending' ? (
-                    <>
-                      <motion.span animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }} style={{ display: 'inline-block', width: 18, height: 18, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} />
-                      Sending message…
-                    </>
-                  ) : (
-                    <>
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                      </svg>
-                      Send Message
-                    </>
-                  )}
-                </motion.button>
-                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.75rem' }}>Messages are sent directly and securely ✉️</p>
-              </motion.form>
-            )}
-          </AnimatePresence>
+    <AnimatePresence mode="wait">
+      {isLoading ? (
+        <motion.div key="preloader" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+          <ThreePreloader onComplete={() => setIsLoading(false)} />
         </motion.div>
-
-        {/* ── Sidebar ── */}
-        <motion.aside className="reveal" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
-          initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-
-          {/* Availability */}
-          <motion.div style={{
-            background: 'hsl(142 70% 45% / 8%)', border: '1px solid hsl(142 70% 45% / 30%)',
-            borderRadius: 'var(--radius)', padding: '1.4rem',
-          }} whileHover={{ borderColor: 'hsl(142 70% 45% / 60%)', boxShadow: '0 0 20px hsl(142 70% 45% / 15%)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'hsl(142 70% 55%)', display: 'inline-block', animation: 'pulse-dot 2s ease-in-out infinite' }} />
-              <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'hsl(142 70% 55%)' }}>Available for Work</span>
+      ) : (
+        <motion.div
+          key="content"
+          style={{ maxWidth: 1100, margin: '0 auto', padding: '3rem 2rem 5rem' }}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Header */}
+          <motion.div className="reveal" style={{ textAlign: 'center', marginBottom: '3.5rem' }}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <div className="hero-eyebrow" style={{ display: 'inline-flex', marginBottom: '1rem' }}>
+              <span>✉️</span><span>Let's Connect</span>
             </div>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Open to freelance, collaborations & full-time roles. Let's build something great!
+            <h1 style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: '0.75rem' }}>
+              Get in <span className="gradient-text"><TextScramble text="Touch" /></span>
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
+              Have a project in mind, want to collaborate, or just say hi? I'd love to hear from you.
             </p>
           </motion.div>
 
-          {/* Info */}
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '1.4rem' }}>
-            <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>Quick Info</p>
-            {[
-              { icon: '⚡', label: 'Response time', val: '< 24 hours' },
-              { icon: '🌏', label: 'Location', val: 'India (IST)' },
-              { icon: '💼', label: 'Role', val: 'Full Stack Dev' },
-              { icon: '🎓', label: 'Status', val: 'Open to work' },
-            ].map(({ icon, label, val }) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border)' }}>
-                <span style={{ fontSize: '0.83rem', color: 'var(--text-secondary)' }}>{icon} {label}</span>
-                <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>{val}</span>
-              </div>
-            ))}
-          </div>
+          <div className="contact-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '2rem', alignItems: 'start' }}>
 
-          {/* Socials */}
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '1.4rem' }}>
-            <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '1rem' }}>Find Me On</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {SOCIAL_LINKS.map((s, i) => (
-                <motion.a key={s.name} href={s.url}
-                  target={s.url.startsWith('mailto') ? '_self' : '_blank'} rel="noreferrer"
-                  initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + i * 0.07 }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1rem', background: 'hsl(240 5% 7%)', border: '1px solid var(--border)', borderRadius: 10, textDecoration: 'none', color: 'var(--text-primary)' }}
-                  whileHover={{ x: 6, borderColor: s.color, boxShadow: `0 0 16px ${s.color}25` }}>
-                  <span style={{ color: s.color, flexShrink: 0 }}>{s.icon}</span>
-                  <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{s.name}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{s.handle}</div>
+            {/* ── Contact Form with Glassmorphism ── */}
+            <motion.div
+              className="reveal"
+              ref={cardRef}
+              style={{
+                background: 'var(--bg-glass)', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-lg)', padding: '2.25rem',
+                backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                position: 'relative', overflow: 'visible',
+                boxShadow: 'var(--shadow)',
+              }}
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              whileHover={{ y: -4, borderColor: 'var(--border-hover)', boxShadow: '0 8px 40px hsl(0 0% 0% / 50%), var(--shadow-glow)' }}
+            >
+              {/* Shimmer top edge */}
+              <motion.div style={{
+                position: 'absolute', top: 0, left: '10%', right: '10%', height: 2, borderRadius: 2,
+                background: 'linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent)',
+              }}
+                animate={{ opacity: [0.4, 1, 0.4], scaleX: [0.7, 1, 0.7] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '1.75rem' }}>Send a Message</h2>
+
+              <AnimatePresence mode="wait">
+                {status === 'success' ? (
+                  <motion.div key="success"
+                    initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                    style={{ textAlign: 'center', padding: '3rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <motion.div
+                      style={{ width: 80, height: 80, borderRadius: '50%', background: 'hsl(142 70% 45% / 15%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem', border: '2px solid hsl(142 70% 45% / 40%)' }}
+                      initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', stiffness: 280, damping: 18 }}>✓</motion.div>
+                    {[...Array(8)].map((_, i) => (
+                      <motion.div key={i} style={{ position: 'absolute', width: 8, height: 8, borderRadius: '50%', background: i % 2 ? 'var(--accent)' : 'var(--accent-2)' }}
+                        initial={{ x: 0, y: 0, opacity: 1 }}
+                        animate={{ x: Math.cos(i / 8 * Math.PI * 2) * 80, y: Math.sin(i / 8 * Math.PI * 2) * 80, opacity: 0, scale: 0 }}
+                        transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 + i * 0.04 }} />
+                    ))}
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Message sent! 🎉</h3>
+                    <p style={{ color: 'var(--text-secondary)', maxWidth: 320 }}>Your message has been delivered straight to my inbox. I'll get back to you soon!</p>
+                    <motion.button onClick={() => setStatus('idle')}
+                      className="action-btn action-btn-secondary" style={{ marginTop: '0.5rem', width: 'auto', padding: '0.65rem 1.5rem' }}
+                      whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>Send Another</motion.button>
+                  </motion.div>
+                ) : (
+                  <motion.form key="form" onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} noValidate>
+                    <div className="contact-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
+                      <GlowInput id="name" label="Your Name" value={form.name} onChange={set('name')} error={errors.name} required />
+                      <GlowInput id="email" label="Email Address" type="email" value={form.email} onChange={set('email')} error={errors.email} required />
+                    </div>
+
+                    {/* Animated subject selector */}
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Subject</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        {SUBJECTS.map((s, i) => (
+                          <motion.button key={s} type="button" onClick={() => set('subject')(s)}
+                            initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.05 * i }}
+                            whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }}
+                            style={{
+                              padding: '0.35rem 0.9rem', borderRadius: 999, border: `1.5px solid ${form.subject === s ? 'var(--accent)' : 'var(--border)'}`,
+                              background: form.subject === s ? 'var(--accent)' : 'transparent',
+                              color: form.subject === s ? '#fff' : 'var(--text-secondary)',
+                              fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                              boxShadow: form.subject === s ? '0 0 14px var(--accent-glow)' : 'none',
+                              transition: 'all 0.2s',
+                            }}>
+                            {s}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <GlowInput id="message" label="Your Message" as="textarea" rows={5} value={form.message} onChange={set('message')} error={errors.message} required />
+
+                    {/* Char counter */}
+                    <div style={{ textAlign: 'right', fontSize: '0.72rem', color: form.message.length > 400 ? 'var(--accent-3)' : 'var(--text-muted)', marginTop: '-1rem', marginBottom: '1.2rem' }}>
+                      {form.message.length} chars
+                    </div>
+
+                    <motion.button type="submit" disabled={status === 'sending'}
+                      style={{
+                        width: '100%', padding: '1rem', border: 'none',
+                        background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
+                        color: '#fff', borderRadius: 12,
+                        fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 700,
+                        cursor: status === 'sending' ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+                        boxShadow: '0 0 24px var(--accent-glow)', position: 'relative', overflow: 'hidden',
+                      }}
+                      whileHover={{ scale: 1.02, boxShadow: '0 0 40px var(--accent-glow)' }}
+                      whileTap={{ scale: 0.98 }}>
+                      {/* shimmer sweep */}
+                      <motion.div style={{
+                        position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%',
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        pointerEvents: 'none',
+                      }}
+                        animate={{ left: ['−100%', '200%'] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 1 }} />
+                      {status === 'sending' ? (
+                        <>
+                          <motion.span animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }} style={{ display: 'inline-block', width: 18, height: 18, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} />
+                          Sending message…
+                        </>
+                      ) : (
+                        <>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                          </svg>
+                          Send Message
+                        </>
+                      )}
+                    </motion.button>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.75rem' }}>Messages are sent directly and securely ✉️</p>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* ── Sidebar ── */}
+            <motion.aside className="reveal" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+              initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+
+              {/* Availability */}
+              <motion.div style={{
+                background: 'hsl(142 70% 45% / 8%)', border: '1px solid hsl(142 70% 45% / 30%)',
+                borderRadius: 'var(--radius)', padding: '1.4rem',
+              }} whileHover={{ borderColor: 'hsl(142 70% 45% / 60%)', boxShadow: '0 0 20px hsl(142 70% 45% / 15%)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'hsl(142 70% 55%)', display: 'inline-block', animation: 'pulse-dot 2s ease-in-out infinite' }} />
+                  <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'hsl(142 70% 55%)' }}>Available for Work</span>
+                </div>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                  Open to freelance, collaborations & full-time roles. Let's build something great!
+                </p>
+              </motion.div>
+
+              {/* Info */}
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '1.4rem' }}>
+                <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>Quick Info</p>
+                {[
+                  { icon: '⚡', label: 'Response time', val: '< 24 hours' },
+                  { icon: '🌏', label: 'Location', val: 'India (IST)' },
+                  { icon: '💼', label: 'Role', val: 'Full Stack Dev' },
+                  { icon: '🎓', label: 'Status', val: 'Open to work' },
+                ].map(({ icon, label, val }) => (
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: '0.83rem', color: 'var(--text-secondary)' }}>{icon} {label}</span>
+                    <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>{val}</span>
                   </div>
-                  <span style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}>↗</span>
-                </motion.a>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              {/* Socials */}
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '1.4rem' }}>
+                <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '1rem' }}>Find Me On</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {SOCIAL_LINKS.map((s, i) => (
+                    <motion.a key={s.name} href={s.url}
+                      target={s.url.startsWith('mailto') ? '_self' : '_blank'} rel="noreferrer"
+                      initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + i * 0.07 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1rem', background: 'hsl(240 5% 7%)', border: '1px solid var(--border)', borderRadius: 10, textDecoration: 'none', color: 'var(--text-primary)' }}
+                      whileHover={{ x: 6, borderColor: s.color, boxShadow: `0 0 16px ${s.color}25` }}>
+                      <span style={{ color: s.color, flexShrink: 0 }}>{s.icon}</span>
+                      <div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{s.name}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{s.handle}</div>
+                      </div>
+                      <span style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}>↗</span>
+                    </motion.a>
+                  ))}
+                </div>
+              </div>
+            </motion.aside>
           </div>
-        </motion.aside>
-      </div>
-    </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

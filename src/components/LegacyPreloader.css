@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;600&display=swap');
+
+.legacy-preloader-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.legacy-preloader-container canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* ── Rays ── */
+#legacy-rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+#legacy-rays svg {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  opacity: 0.18;
+  animation: raysRotate 40s linear infinite;
+}
+
+@keyframes raysRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Flash on complete ── */
+.legacy-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0,216,240,0.20) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.5s ease-out;
+}
+
+.legacy-flash.show {
+  opacity: 1;
+}
+
+/* ══ Loading Widget ══ */
+#legacy-loading-wrap {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+  width: 250px;
+}
+
+/* Row 1 — label | percentage */
+#legacy-loading-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+#legacy-loading-label {
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.5em;
+  font-size: 13px;
+  font-weight: 300;
+  color: #00d8f0;
+  text-indent: 0.5em;
+  text-shadow: 0 0 8px rgba(0,216,240,.9), 0 0 20px rgba(0,216,240,.4);
+  white-space: nowrap;
+  animation: lblPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes lblPulse {
+  0%, 100% { opacity: .7; }
+  50% { opacity: 1; }
+}
+
+#legacy-pct-display {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: #00d8f0;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 10px rgba(0,216,240,1), 0 0 26px rgba(0,216,240,.55);
+  min-width: 62px;
+  text-align: right;
+  line-height: 1;
+  transition: color .4s, text-shadow .4s;
+}
+
+#legacy-pct-display.done {
+  color: #fff;
+  text-shadow: 0 0 14px #fff, 0 0 30px rgba(0,216,240,.9), 0 0 52px rgba(0,216,240,.35);
+}
+
+/* Row 2 — progress track */
+#legacy-progress-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(0,200,230,.12);
+  border-radius: 2px;
+  position: relative;
+  overflow: visible;
+}
+
+#legacy-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #003344 0%, #00d8f0 100%);
+  border-radius: 2px;
+  position: relative;
+  transition: width 0.06s linear;
+}
+
+#legacy-progress-fill::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00d8f0;
+  box-shadow: 0 0 6px 2px rgba(0,216,240,.95), 0 0 14px 4px rgba(0,216,240,.5);
+  transition: opacity .4s;
+}
+
+#legacy-progress-fill.done::after {
+  opacity: 0;
+}
+
+/* Row 3 — tick labels */
+#legacy-tick-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.legacy-tick-lbl {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 9px;
+  font-weight: 300;
+  color: rgba(0,216,240,.32);
+  letter-spacing: .04em;
+}
+
+/* Row 4 — step status */
+#legacy-step-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  font-weight: 300;
+  color: rgba(0,216,240,.52);
+  letter-spacing: .22em;
+  text-indent: .22em;
+  text-align: center;
+  min-height: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity .25s;
+}

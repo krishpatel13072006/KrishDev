@@ -1,0 +1,71 @@
+.three-preloader-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 38% 36%, #0c1a35 0%, #071020 55%, #030b18 100%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.three-preloader-canvas {
+  display: block;
+}
+
+#three-label {
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  user-select: none;
+}
+
+#three-percent {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(36px, 5vw, 66px);
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+#three-percent sup {
+  font-size: 0.42em;
+  vertical-align: super;
+  opacity: 0.72;
+  font-weight: normal;
+}
+
+#three-loading-text {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(11px, 1.1vw, 15px);
+  color: #5a9ec8;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+#three-bar-wrap {
+  width: clamp(70px, 8vw, 110px);
+  height: 3px;
+  background: rgba(30, 80, 180, 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#three-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #1a7fff, #00cfff);
+  box-shadow: 0 0 10px rgba(0, 160, 255, 0.75);
+  transition: width 0.12s linear;
+}

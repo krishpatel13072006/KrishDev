@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import TextScramble from '../components/TextScramble'
 import useScrollReveal from '../hooks/useScrollReveal'
+import ThreePreloader from '../components/ThreePreloader'
 
 const GITHUB_USERNAME = 'krishpatel13072006'
 const LEETCODE_USERNAME = 'krish_patel13072006'
@@ -89,6 +90,7 @@ export default function DashboardPage() {
   const [lcData, setLcData] = useState(LEETCODE_FALLBACK)
   const [githubStats, setGithubStats] = useState({ followers: 0, public_repos: 0, stars: 0 })
   const [languages, setLanguages] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [loading, setLoading] = useState(true)
   useScrollReveal()
 
@@ -173,16 +175,13 @@ export default function DashboardPage() {
   const medDash = (lcData.mediumSolved / total) * 301.6;
   const hardDash = (lcData.hardSolved / total) * 301.6;
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: '1.5rem', color: 'var(--text-secondary)' }}>
-        <motion.div
-          style={{ width: 50, height: 50, borderRadius: '50%', border: '3px solid var(--border)', borderTopColor: 'var(--accent)' }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', letterSpacing: '0.05em' }}>SYNCING ANALYTICS...</p>
-      </div>
+      <AnimatePresence>
+        <motion.div key="preloader" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+          <ThreePreloader onComplete={() => setIsLoading(false)} />
+        </motion.div>
+      </AnimatePresence>
     )
   }
 
@@ -193,6 +192,7 @@ export default function DashboardPage() {
       initial="hidden"
       animate="show"
       exit="exit"
+      style={{ overflow: 'hidden' }}
     >
       {/* Hero */}
       <section className="dashboard-hero reveal">
@@ -227,7 +227,7 @@ export default function DashboardPage() {
       <div className="dashboard-grid">
         {/* LeetCode Progress */}
         <motion.div
-          className="dash-panel reveal"
+          className="dash-panel glassmorphic reveal"
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -287,7 +287,7 @@ export default function DashboardPage() {
 
         {/* Language Distribution */}
         <motion.div
-          className="dash-panel"
+          className="dash-panel glassmorphic"
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.35 }}
@@ -309,7 +309,7 @@ export default function DashboardPage() {
 
       {/* Real GitHub Activity Chart */}
       <motion.div
-        className="dash-panel"
+        className="dash-panel glassmorphic"
         style={{ margin: '0 2rem 3rem', maxWidth: 1360, marginLeft: 'auto', marginRight: 'auto' }}
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}

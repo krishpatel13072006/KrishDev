@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextScramble from "../components/TextScramble";
 import useScrollReveal from "../hooks/useScrollReveal";
+import QuantumPreloader from "../components/QuantumPreloader";
 
 const USERNAME = "krish_patel13072006";
 
@@ -188,6 +189,7 @@ function BentoStat({ title, value, icon, gradient, delay }) {
 
 export default function LeetCodePage() {
   const [stats, setStats] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   useScrollReveal();
 
@@ -211,16 +213,13 @@ export default function LeetCodePage() {
   const ranking = s.ranking ?? "—";
   let acceptRate = s.acceptanceRate ?? s.acceptance_rate ?? "—";
   if (typeof acceptRate === "number") acceptRate = `${acceptRate.toFixed(1)}%`;
-  if (loading) {
+  if (isLoading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: '1.5rem', color: 'var(--text-secondary)', backgroundColor: '#000' }}>
-        <motion.div
-          style={{ width: 50, height: 50, borderRadius: '50%', border: '3px solid #333', borderTopColor: '#8b5cf6' }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', letterSpacing: '0.05em' }}>DECODING LEETCODE DATA...</p>
-      </div>
+      <AnimatePresence>
+        <motion.div key="preloader" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+          <QuantumPreloader onComplete={() => setIsLoading(false)} />
+        </motion.div>
+      </AnimatePresence>
     )
   }
 

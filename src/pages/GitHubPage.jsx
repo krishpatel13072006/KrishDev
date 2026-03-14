@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import TextScramble from '../components/TextScramble'
 import useScrollReveal from '../hooks/useScrollReveal'
+import QuantumPreloader from '../components/QuantumPreloader'
 
 const GITHUB_USER = 'krishpatel13072006'
 
 export default function GitHubPage() {
   const [profile, setProfile] = useState(null)
   const [repos, setRepos] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   useScrollReveal()
 
   useEffect(() => {
@@ -18,8 +19,11 @@ export default function GitHubPage() {
     ]).then(([user, repoList]) => {
       setProfile(user)
       setRepos(Array.isArray(repoList) ? repoList : [])
-      setLoading(false)
-    }).catch(() => setLoading(false))
+    }).finally(() => {
+      // setIsLoading is handled by QuantumPreloader onComplete
+      // But we should ensure data is loaded before preloader finishes if possible
+      // However, the current logic is to show preloader first.
+    })
   }, [])
 
   const containerVariants = {
@@ -31,16 +35,13 @@ export default function GitHubPage() {
     show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] } },
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '1rem', color: 'var(--text-secondary)' }}>
-        <motion.div
-          style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid var(--border)', borderTopColor: 'var(--accent)' }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
-        />
-        <p>Fetching GitHub profile…</p>
-      </div>
+      <AnimatePresence>
+        <motion.div key="preloader" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+          <QuantumPreloader onComplete={() => setIsLoading(false)} />
+        </motion.div>
+      </AnimatePresence>
     )
   }
 
@@ -57,14 +58,11 @@ export default function GitHubPage() {
       {/* ── Profile Header ── */}
       {profile && (
         <motion.div
-          className="github-profile-header reveal"
+          className="github-profile-header glassmorphic reveal"
           style={{
             display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap',
-            background: 'var(--bg-glass)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-lg)', padding: '2rem',
-            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+            padding: '2rem',
             marginBottom: '2rem',
-            boxShadow: 'var(--shadow)',
           }}
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -77,11 +75,11 @@ export default function GitHubPage() {
             whileHover={{ scale: 1.07, rotate: 3 }}
           />
           <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
+            <div className="github-name-id" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
               <h1 style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
                 <TextScramble text={profile.name || profile.login} />
               </h1>
-              <span style={{
+              <span className="github-id" style={{
                 background: 'var(--accent-glow)', border: '1px solid var(--border-hover)',
                 color: 'var(--accent)', fontSize: '0.72rem', fontWeight: 700,
                 padding: '0.2rem 0.7rem', borderRadius: 999,
@@ -123,14 +121,9 @@ export default function GitHubPage() {
               View on GitHub
             </motion.a>
             {topLangs.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}>
+              <div className="github-langs" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}>
                 {topLangs.map(lang => (
-                  <span key={lang} style={{
-                    fontFamily: 'var(--font-mono)', fontSize: '0.72rem',
-                    padding: '0.2rem 0.6rem', borderRadius: 6,
-                    background: 'hsl(240 5% 15%)', color: 'var(--accent-2)',
-                    border: '1px solid hsl(190 90% 55% / 25%)'
-                  }}>{lang}</span>
+                  <span key={lang} className="tech-badge">{lang}</span>
                 ))}
               </div>
             )}
@@ -140,13 +133,10 @@ export default function GitHubPage() {
 
       {/* ── GitHub Contribution Graph ── */}
       <motion.div
+        className="glassmorphic reveal"
         style={{
-          background: 'var(--bg-glass)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '2rem',
-          backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-          boxShadow: 'var(--shadow)'
+          overflow: 'hidden', marginBottom: '2rem',
         }}
-        className="reveal"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -163,61 +153,64 @@ export default function GitHubPage() {
         </div>
       </motion.div>
 
-      {/* ── Repos Grid ── */}
+      {/* ── Repos Vertical Marquee ── */}
       <div style={{ marginBottom: '1.25rem' }}>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
           Public Repositories <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.9rem' }}>({repos.length})</span>
         </h2>
       </div>
 
-      <motion.div
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}
-        className="reveal"
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
-        {repos.map(repo => (
-          <motion.a
-            key={repo.id}
-            href={repo.html_url}
-            target="_blank"
-            rel="noreferrer"
-            variants={itemVariants}
-            style={{ textDecoration: 'none', display: 'block' }}
-            whileHover={{ y: -4 }}
-          >
-            <div style={{
-              background: 'var(--bg-glass)', border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)', padding: '1.25rem',
-              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-              height: '100%', transition: 'border-color 0.25s, box-shadow 0.25s',
-              boxShadow: 'var(--shadow)',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.boxShadow = '0 8px 40px hsl(0 0% 0% / 50%), var(--shadow-glow)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'var(--shadow)' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                <span style={{ fontWeight: 700, color: 'var(--accent)', fontSize: '0.95rem', wordBreak: 'break-word' }}>{repo.name}</span>
-                {repo.fork && <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 999, padding: '0.15rem 0.5rem' }}>fork</span>}
+      <div className="repo-marquee-container glassmorphic-dark reveal">
+        <div className="repo-marquee-grid">
+          {[0, 1, 2].map(colIndex => {
+            const colRepos = repos.filter((_, i) => i % 3 === colIndex);
+            // Duplicate for seamless scroll
+            const displayRepos = [...colRepos, ...colRepos];
+            const duration = 24 + colIndex * 4; // Different speeds (24s, 28s, 32s)
+
+            return (
+              <div key={colIndex} className="repo-scroll-col" style={{ '--col-duration': `${duration}s` }}>
+                <div className="repo-scroll-content">
+                  {displayRepos.map((repo, idx) => (
+                    <motion.a
+                      key={`${repo.id}-${idx}`}
+                      href={repo.html_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ textDecoration: 'none', display: 'block' }}
+                    >
+                      <div className="glassmorphic" style={{
+                        padding: '1.25rem',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                          <span style={{ fontWeight: 700, color: 'var(--accent)', fontSize: '0.95rem', wordBreak: 'break-word' }}>{repo.name}</span>
+                          {repo.fork && <span className="badge" style={{ fontSize: '0.68rem', padding: '0.15rem 0.5rem' }}>fork</span>}
+                        </div>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.85rem', minHeight: 36 }}>
+                          {repo.description || 'No description provided.'}
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 'auto' }}>
+                          {repo.language && (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-2)', display: 'inline-block' }} />
+                              {repo.language}
+                            </span>
+                          )}
+                          <span>⭐ {repo.stargazers_count}</span>
+                          <span>🍴 {repo.forks_count}</span>
+                        </div>
+                      </div>
+                    </motion.a>
+                  ))}
+                </div>
               </div>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.85rem', minHeight: 36 }}>
-                {repo.description || 'No description provided.'}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                {repo.language && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-2)', display: 'inline-block' }} />
-                    {repo.language}
-                  </span>
-                )}
-                <span>⭐ {repo.stargazers_count}</span>
-                <span>🍴 {repo.forks_count}</span>
-              </div>
-            </div>
-          </motion.a>
-        ))}
-      </motion.div>
+            );
+          })}
+        </div>
+      </div>
     </motion.div>
   )
 }

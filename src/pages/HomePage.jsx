@@ -62,7 +62,7 @@ const ProjectCard = forwardRef(({ project, index }, ref) => {
       variants={cardVariants}
       layout
       layoutId={`card-${project.id}`}
-      className="project-card reveal"
+      className="project-card glassmorphic reveal"
       onClick={() => navigate(`/project/${project.id}`)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -70,10 +70,6 @@ const ProjectCard = forwardRef(({ project, index }, ref) => {
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       style={{
         '--card-accent': project.color,
-        boxShadow: hovered
-          ? `0 8px 40px hsl(0 0% 0% / 50%), 0 0 40px ${project.color}25`
-          : undefined,
-        borderColor: hovered ? `${project.color}50` : undefined,
       }}
     >
       {/* Image */}
