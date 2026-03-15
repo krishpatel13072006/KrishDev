@@ -165,7 +165,7 @@ const ThreePreloader = ({ onComplete }) => {
       }
     }, 420);
 
-    const LOAD_DURATION = 6000;
+    const LOAD_DURATION = 2000;
     const loadStart = performance.now();
     let loadDone = false;
 
@@ -189,7 +189,7 @@ const ThreePreloader = ({ onComplete }) => {
         setCompleteText('complete');
         setTimeout(() => {
           if (onCompleteRef.current) onCompleteRef.current();
-        }, 800);
+        }, 400);
       }
     };
 

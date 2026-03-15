@@ -1,0 +1,34 @@
+# List Network Requests
+
+| reqid | method | url | status |
+|---|---|---|---|
+| 1 | GET | http://localhost:8080/node_modules/vite/dist/client/env.mjs | failed - 304 |
+| 2 | GET | http://localhost:8080/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=34a2e355 | success - 200 |
+| 3 | GET | http://localhost:8080/node_modules/.vite/deps/react.js?v=34a2e355 | success - 200 |
+| 4 | GET | http://localhost:8080/node_modules/.vite/deps/react-dom_client.js?v=34a2e355 | success - 200 |
+| 5 | GET | http://localhost:8080/node_modules/.vite/deps/react-router-dom.js?v=34a2e355 | success - 200 |
+| 6 | GET | http://localhost:8080/src/App.jsx?t=1773251164431 | success - 200 |
+| 7 | GET | http://localhost:8080/src/index.css | failed - 304 |
+| 8 | GET | http://localhost:8080/node_modules/.vite/deps/chunk-2YIMICFJ.js?v=34a2e355 | success - 200 |
+| 9 | GET | http://localhost:8080/node_modules/.vite/deps/chunk-BCXODTBQ.js?v=34a2e355 | success - 200 |
+| 10 | GET | http://localhost:8080/src/context/ThemeContext.jsx | failed - 304 |
+| 11 | GET | http://localhost:8080/node_modules/.vite/deps/framer-motion.js?v=34a2e355 | success - 200 |
+| 12 | GET | http://localhost:8080/src/components/Navbar.jsx | failed - 304 |
+| 13 | GET | http://localhost:8080/src/pages/HomePage.jsx | failed - 304 |
+| 14 | GET | http://localhost:8080/src/pages/ProjectDetailPage.jsx | failed - 304 |
+| 15 | GET | http://localhost:8080/src/pages/GitHubPage.jsx | failed - 304 |
+| 16 | GET | http://localhost:8080/src/pages/ContactPage.jsx | failed - 304 |
+| 17 | GET | http://localhost:8080/src/pages/LeetCodePage.jsx | failed - 304 |
+| 18 | GET | http://localhost:8080/src/components/Preloader.jsx?t=1773251164431 | failed - 304 |
+| 19 | GET | http://localhost:8080/src/data/projects.js | failed - 304 |
+| 20 | GET | http://localhost:8080/node_modules/.vite/deps/chunk-RLMGAKMB.js?v=34a2e355 | success - 200 |
+| 21 | GET | https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap | success - 200 |
+| 23 | GET | https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2 | success - 200 |
+| 24 | GET | https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2 | success - 200 |
+| 25 | GET | https://fonts.gstatic.com/s/sharetechmono/v16/J7aHnp1uDWRBEqV98dVQztYldFcLowEF.woff2 | success - 200 |
+| 26 | GET | https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=800&auto=format&fit=crop | success - 200 |
+| 27 | GET | https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop | success - 200 |
+| 28 | GET | https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=800&auto=format&fit=crop | success - 200 |
+| 29 | GET | https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&auto=format&fit=crop | success - 200 |
+| 30 | GET | https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&auto=format&fit=crop | success - 200 |
+| 31 | GET | https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pa8FvOreec.woff2 | success - 200 |

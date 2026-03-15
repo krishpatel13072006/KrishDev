@@ -189,8 +189,8 @@ const LegacyPreloader = ({ onComplete }) => {
     const scheduleChunk = () => {
       const rem = 100 - targetVal;
       if (rem <= 0) return;
-      const chunk = Math.min(rem, 4 + Math.random() * 10);
-      const delay = 120 + Math.random() * 380;
+      const chunk = Math.min(rem, 15 + Math.random() * 20);
+      const delay = 40 + Math.random() * 100;
       timer = setTimeout(() => {
         targetVal = Math.min(100, targetVal + chunk);
         if (targetVal < 100) scheduleChunk();
@@ -219,10 +219,10 @@ const LegacyPreloader = ({ onComplete }) => {
         setIsDone(true);
         setStepLabel('— READY —');
         setShowFlash(true);
-        setTimeout(() => setShowFlash(false), 900);
+        setTimeout(() => setShowFlash(false), 300);
         setTimeout(() => {
           if (onCompleteRef.current) onCompleteRef.current();
-        }, 1200);
+        }, 400);
       }
 
       if (!done || progressVal < 100) {

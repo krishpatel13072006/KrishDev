@@ -27,7 +27,7 @@ const QuantumPreloader = ({ onComplete }) => {
 
     let t = 0;
     let percent = 0;
-    const DURATION = 6;
+    const DURATION = 2;
     let loadDone = false;
 
     const draw = () => {
@@ -42,7 +42,7 @@ const QuantumPreloader = ({ onComplete }) => {
         loadDone = true;
         setTimeout(() => {
            if (onCompleteRef.current) onCompleteRef.current();
-        }, 800);
+        }, 400);
       }
 
       ctx.clearRect(0, 0, W, H);
