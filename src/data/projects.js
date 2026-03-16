@@ -242,6 +242,67 @@ npm run dev
 ## Author
 Created by **Krish Patel** — [@krishpatel13072006](https://github.com/krishpatel13072006)`,
   },
+
+  {
+    id: "auramist",
+    title: "AuraMist",
+    description: "A high-end, luxury fragrance showcase blending cosmic aesthetics with immersive 3D technology, featuring interactive perfume models and an ethereal soundscape.",
+    liveUrl: "https://auramistt.netlify.app/",
+    githubUrl: "https://github.com/krishpatel13072006/auramist",
+    image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&auto=format&fit=crop",
+    tech: ["Next.js", "Three.js", "Tailwind CSS 4", "Framer Motion", "GSAP"],
+    category: "Full Stack",
+    color: "#D4AF37",
+    stars: 25,
+    forks: 8,
+    featured: true,
+    readme: `# 🌌 AuraMist — Immersive Luxury Fragrance Experience
+
+An extraordinary, high-end digital showcase for premium fragrances, blending cosmic aesthetics with cutting-edge 3D technology.
+
+---
+
+## 💎 Features at a Glance
+
+### 🎨 Visual & 3D Experience
+- 🧴 **Interactive 3D Showcase**: High-fidelity 3D perfume bottles that respond to user interaction.
+- 🌌 **Cosmic Atmosphere**: Immersive backgrounds featuring nebulae and ethereal animations.
+- 🧊 **Glassmorphism UI**: A sleek, modern interface with translucent elements and refined typography.
+
+### 🎵 Immersive Elements
+- 🎼 **Ethereal Soundscape**: Integrated audio player providing a curated atmospheric background.
+- ✨ **Reveal Animations**: Smooth GSAP and Framer Motion transitions that create a sense of discovery.
+
+---
+
+## 🛠️ Technological Architecture
+
+| Category | Tools & Technologies |
+| :--- | :--- |
+| **Frontend** | \`Next.js 15 (App Router)\`, \`TypeScript\`, \`React 19\` |
+| **3D Engine** | \`Three.js\`, \`@react-three/fiber\`, \`@react-three/drei\` |
+| **Design** | \`Tailwind CSS 4\`, \`Sass\`, \`Lucide React\` |
+| **Animation** | \`Framer Motion\`, \`GSAP\` |
+
+---
+
+## 🚀 Experience it Personally
+
+### Installation
+\`\`\`bash
+git clone https://github.com/krishpatel13072006/auramist
+cd auramist && npm install
+npm run dev
+\`\`\`
+
+### Live Preview
+🔗 [auramistt.netlify.app](https://auramistt.netlify.app/)
+
+---
+
+## 🖋️ Behind the Project
+Created by **Krish Patel** — A fusion of botanical beauty and molecular science.`,
+  },
 ];
 
 export const categories = ["All", "Full Stack", "Frontend", "Backend"];
